@@ -20,12 +20,16 @@ var args = minimist(process.argv.slice(2), {
 
 var providerArray = args.providers.split(',');
 
-providerArray.forEach(function(provider) {
+providerArray.forEach(function (provider) {
     web3.setProvider(new web3.providers.HttpProvider(provider));
 
     for (var i = 0; i < args.count; i++) {
         web3.eth.personal.newAccount('', function (error, result) {
-            fs.appendFile('account-list-'+provider.substring(7), result + '\n', function (err) {
+            if (error) {
+                console.log(error);
+            }
+
+            fs.appendFile('account-list-' + provider.substring(7), result + '\n', function (err) {
                 if (err) throw err;
             });
         });
