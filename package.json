@@ -10,6 +10,7 @@
     "limiter": "^1.1.3",
     "microtime": "^2.1.8",
     "minimist": "^1.2.0",
+    "net": "^1.0.2",
     "web3": "^1.0.0-beta.33"
   },
   "devDependencies": {},

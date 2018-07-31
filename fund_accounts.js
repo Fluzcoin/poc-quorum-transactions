@@ -1,15 +1,15 @@
-var Web3 = require('web3');
-var web3 = new Web3();
+let Web3 = require('web3');
+let web3 = new Web3();
 const fs = require('fs');
-var glob = require("glob");
-var readline = require('readline');
+let glob = require("glob");
+let readline = require('readline');
 
 /**
  * Handle arguments
  */
-var minimist = require('minimist');
-var args = minimist(process.argv.slice(2), {
-    string: ['fundingProvider', 'fundingAccount'],
+let minimist = require('minimist');
+let args = minimist(process.argv.slice(2), {
+    string: ['fundingProvider', 'fundingAccount', 'protocol'],
 
     unknown: function () {
         console.log('Invalid arguments');
@@ -17,7 +17,15 @@ var args = minimist(process.argv.slice(2), {
     }
 });
 
-web3.setProvider(new web3.providers.HttpProvider(args.fundingProvider));
+if (args.protocol === 'websocket') {
+    web3.setProvider(new web3.providers.WebsocketProvider(args.provider));
+} else if (args.protocol === 'ipc') {
+    let net = require('net');
+    web3.setProvider(new web3.providers.IpcProvider(args.provider, net));
+} else {
+    web3.setProvider(new web3.providers.HttpProvider(args.provider));
+}
+
 web3.eth.personal.unlockAccount(args.fundingAccount, "", 3600);
 
 /** Fund accounts **/
@@ -25,7 +33,7 @@ web3.eth.personal.unlockAccount(args.fundingAccount, "", 3600);
 // options is optional
 glob("account-list-*", null, function (er, files) {
     files.forEach(function (file) {
-        var lineReader = readline.createInterface({
+        let lineReader = readline.createInterface({
             input: fs.createReadStream(file)
         });
 
