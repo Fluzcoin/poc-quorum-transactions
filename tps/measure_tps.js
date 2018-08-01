@@ -41,7 +41,6 @@ let timeReferenceBlock;
 let timeReferenceBlockTs;
 
 web3.eth.getBlock('latest', function (e, res) {
-    console.log(e, res);
     startBlock = !args.startBlock ? 0 : args.startBlock;
     endBlock = !args.endBlock ? res.number : args.endBlock;
 
