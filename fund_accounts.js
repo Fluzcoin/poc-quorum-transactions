@@ -18,12 +18,12 @@ let args = minimist(process.argv.slice(2), {
 });
 
 if (args.protocol === 'websocket') {
-    web3.setProvider(new web3.providers.WebsocketProvider(args.provider));
+    web3.setProvider(new web3.providers.WebsocketProvider(args.fundingProvider));
 } else if (args.protocol === 'ipc') {
     let net = require('net');
-    web3.setProvider(new web3.providers.IpcProvider(args.provider, net));
+    web3.setProvider(new web3.providers.IpcProvider(args.fundingProvider, net));
 } else {
-    web3.setProvider(new web3.providers.HttpProvider(args.provider));
+    web3.setProvider(new web3.providers.HttpProvider(args.fundingProvider));
 }
 
 web3.eth.personal.unlockAccount(args.fundingAccount, "", 3600);

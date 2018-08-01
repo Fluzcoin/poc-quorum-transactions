@@ -44,9 +44,12 @@ glob(filename, null, function (er, files) {
         lineReader.on('line', async function (line) {
             // Wait until account is unlocked before spamming transactions from it
             await unlock(line);
+            // Get nonce nonce
+            let nonce = await getNonce(line);
 
             for (let i = 0; i < args.txcount; i++) {
-                sendTransactions(line);
+                sendTransactions(line, nonce);
+                nonce = nonce + 1;
             }
         });
     })
@@ -56,14 +59,16 @@ glob(filename, null, function (er, files) {
  * Throttled transaction sending based on input data
  *
  * @param account
+ * @param nonce
  */
-function sendTransactions(account) {
+function sendTransactions(account, nonce) {
     limiter.removeTokens(1, function(err, remainingRequests) {
         web3.eth.sendTransaction({
             from: account,
             gas: 400000000,
             to: Buffer.from(ejs.generate().getAddress()).toString('hex'),
-            value: Math.ceil(Math.random() * 3)
+            value: Math.ceil(Math.random() * 3),
+            nonce: nonce
         }, function (error, result) {
             fs.appendFile('out.txt', result + ',' + ms.now() + '\n', function (err) {
                 if (err) throw err;
@@ -86,6 +91,20 @@ function unlock(acc) {
     return new Promise(resolve => {
         web3.eth.personal.unlockAccount(acc, "", 0, function () {
             resolve();
+        });
+    });
+}
+
+/**
+ * Get account TX count
+ *
+ * @param acc
+ * @returns {Promise}
+ */
+function getNonce(acc) {
+    return new Promise(resolve => {
+        web3.eth.getTransactionCount(acc, function (e, res) {
+            resolve(res);
         });
     });
 }
